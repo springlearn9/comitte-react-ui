@@ -8,9 +8,12 @@ type Props = {
   onRefresh: () => void;
   showOwnerActions?: boolean;
   onAttach?: (c: Comitte) => void;
+  // optional modal handlers
+  onView?: (c: Comitte) => void;
+  onEdit?: (c: Comitte) => void;
 };
 
-const ComitteItem: React.FC<Props> = ({ comitte, onRefresh, showOwnerActions = false, onAttach }) => {
+const ComitteItem: React.FC<Props> = ({ comitte, onRefresh, showOwnerActions = false, onAttach, onView, onEdit }) => {
   const navigate = useNavigate();
 
   const handleDelete = async () => {
@@ -31,8 +34,18 @@ const ComitteItem: React.FC<Props> = ({ comitte, onRefresh, showOwnerActions = f
         <div className="text-sm text-gray-600">Members: {comitte.membersCount} • Full Amount: {comitte.fullAmount}</div>
       </div>
       <div className="flex gap-2 items-center">
-        <Link to={`/comittes/${comitte.comitteId}`} className="text-blue-600">View</Link>
-        <Link to={`/comittes/${comitte.comitteId}/edit`} className="text-blue-600">Update</Link>
+        {onView ? (
+          <button onClick={() => onView(comitte)} className="text-blue-600">View</button>
+        ) : (
+          <Link to={`/comittes/${comitte.comitteId}`} className="text-blue-600">View</Link>
+        )}
+
+        {onEdit ? (
+          <button onClick={() => onEdit(comitte)} className="text-blue-600">Update</button>
+        ) : (
+          <Link to={`/comittes/${comitte.comitteId}/edit`} className="text-blue-600">Update</Link>
+        )}
+
         {showOwnerActions && <button onClick={() => onAttach?.(comitte)} className="btn">Attach</button>}
         {showOwnerActions && <button onClick={handleDelete} className="text-red-600">Delete</button>}
       </div>

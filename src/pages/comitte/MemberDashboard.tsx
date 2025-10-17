@@ -5,6 +5,8 @@ import { Comitte } from './types';
 import * as comitteService from './services/comitteService';
 import AttachMembersModal from './components/AttachMembersModal';
 import CreateComitteModal from './components/CreateComitteModal';
+import ComitteViewModal from './components/ComitteViewModal';
+import ComitteEditModal from './components/ComitteEditModal';
 
 const MemberDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -15,6 +17,10 @@ const MemberDashboard: React.FC = () => {
   const [tab, setTab] = useState<'my' | 'owned'>('my');
   const [attachComitte, setAttachComitte] = useState<Comitte | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+
+  // new modal states
+  const [viewComitte, setViewComitte] = useState<Comitte | null>(null);
+  const [editComitte, setEditComitte] = useState<Comitte | null>(null);
 
   const load = async () => {
     if (!memberId) return;
@@ -53,6 +59,10 @@ const MemberDashboard: React.FC = () => {
           onRefresh={load}
           showOwnerActions={false}
           onAttach={() => {}}
+          // provide modal handlers so view/edit appear in popup
+          // @ts-ignore - ComitteList forwards props to ComitteItem
+          onView={(c: Comitte) => setViewComitte(c)}
+          onEdit={(c: Comitte) => setEditComitte(c)}
         />
       )}
 
@@ -62,6 +72,9 @@ const MemberDashboard: React.FC = () => {
           onRefresh={load}
           showOwnerActions
           onAttach={(c) => setAttachComitte(c)}
+          // @ts-ignore - ComitteList forwards props to ComitteItem
+          onView={(c: Comitte) => setViewComitte(c)}
+          onEdit={(c: Comitte) => setEditComitte(c)}
         />
       )}
 
@@ -82,6 +95,24 @@ const MemberDashboard: React.FC = () => {
           onClose={() => setShowCreate(false)}
           onCreated={() => {
             setShowCreate(false);
+            load();
+          }}
+        />
+      )}
+
+      {viewComitte && (
+        <ComitteViewModal
+          comitteId={viewComitte.comitteId}
+          onClose={() => setViewComitte(null)}
+        />
+      )}
+
+      {editComitte && (
+        <ComitteEditModal
+          comitteId={editComitte.comitteId}
+          onClose={() => setEditComitte(null)}
+          onSaved={() => {
+            setEditComitte(null);
             load();
           }}
         />
