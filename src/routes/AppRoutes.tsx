@@ -8,6 +8,8 @@ import NotFound from '../pages/NotFound';
 import ProtectedRoute from '../components/ui/ProtectedRoute';
 import Layout from '../components/ui/Layout';
 import { useAuth } from '../context/AuthContext';
+import ComitteView from '../pages/comitte/ComitteView';
+import ComitteEdit from '../pages/comitte/ComitteEdit';
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
@@ -26,6 +28,10 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
+
+        {/* Comitte pages */}
+        <Route path="/comittes/:id" element={<ComitteView />} />
+        <Route path="/comittes/:id/edit" element={<ComitteEdit />} />
 
         {/* Not Found Route */}
         <Route path="*" element={<NotFound />} />

@@ -1,6 +1,8 @@
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import MemberDashboard from './comitte'; // index.tsx exports MemberDashboard
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   return (
@@ -21,6 +23,11 @@ const Dashboard = () => {
           <p>Loading user data...</p>
         )}
       </div>
+
+      {/* Member-specific comitte dashboard */}
+      <section className="mt-6">
+        <MemberDashboard />
+      </section>
     </div>
   );
 };
