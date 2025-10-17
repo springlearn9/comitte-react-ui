@@ -4,16 +4,17 @@ import ComitteList from './components/ComitteList';
 import { Comitte } from './types';
 import * as comitteService from './services/comitteService';
 import AttachMembersModal from './components/AttachMembersModal';
+import CreateComitteModal from './components/CreateComitteModal';
 
 const MemberDashboard: React.FC = () => {
   const { user } = useAuth();
-  // derive memberId from common possible user properties; narrow to number | undefined
   const memberId: number | undefined = (user as any)?.memberId ?? (user as any)?.id ?? (user as any)?.userId;
 
   const [myComittes, setMyComittes] = useState<Comitte[]>([]);
   const [ownedComittes, setOwnedComittes] = useState<Comitte[]>([]);
   const [tab, setTab] = useState<'my' | 'owned'>('my');
   const [attachComitte, setAttachComitte] = useState<Comitte | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const load = async () => {
     if (!memberId) return;
@@ -34,7 +35,13 @@ const MemberDashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl mb-4">Comittes</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl">Comittes</h2>
+        <div>
+          <button onClick={() => setShowCreate(true)} className="bg-green-600 text-white px-3 py-1 rounded">Create Comitte</button>
+        </div>
+      </div>
+
       <div className="flex gap-2 mb-4">
         <button onClick={() => setTab('my')} className={tab === 'my' ? 'font-bold' : ''}>My Comittes</button>
         <button onClick={() => setTab('owned')} className={tab === 'owned' ? 'font-bold' : ''}>Owned Comittes</button>
@@ -64,6 +71,17 @@ const MemberDashboard: React.FC = () => {
           onClose={() => setAttachComitte(null)}
           onAttached={() => {
             setAttachComitte(null);
+            load();
+          }}
+        />
+      )}
+
+      {showCreate && (
+        <CreateComitteModal
+          ownerId={memberId}
+          onClose={() => setShowCreate(false)}
+          onCreated={() => {
+            setShowCreate(false);
             load();
           }}
         />
