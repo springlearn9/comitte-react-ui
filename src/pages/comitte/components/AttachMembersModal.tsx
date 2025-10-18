@@ -1,7 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Comitte, ComitteMemberMap } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Comitte } from '../types';
+import { ComitteMemberMap } from '../types';
 import * as mapService from '../services/comitteMemberMapService';
+import * as comitteService from '../services/comitteService';
 import MemberSearchSelect, { MemberOption } from './MemberSearchSelect';
+import { UserPlus, X, Check } from 'lucide-react';
+import PageHeader from '../../../components/ui/PageHeader';
 
 type Props = {
   comitte: Comitte;
@@ -40,7 +44,7 @@ const AttachMembersModal: React.FC<Props> = ({ comitte, onClose, onAttached }) =
     setEntries((s) => s.filter((_, i) => i !== idx));
   };
 
-  const totalShare = useMemo(() => entries.reduce((acc, e) => acc + (Number(e.shareCount) || 0), 0), [entries]);
+  const totalShare = entries.reduce((acc, e) => acc + (Number(e.shareCount) || 0), 0);
   const shareExceeded = fullShareLimit !== undefined && totalShare > fullShareLimit;
   const anyMissingMember = entries.some((e) => !e.memberId);
 
@@ -62,15 +66,17 @@ const AttachMembersModal: React.FC<Props> = ({ comitte, onClose, onAttached }) =
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded w-full max-w-2xl">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg">Attach members to {comitte.comitteName}</h3>
-          <button onClick={onClose}>Close</button>
-        </div>
+      <div className="bg-white p-5 rounded-lg w-full max-w-3xl shadow-lg">
+        <PageHeader
+          title={`Attach members — ${comitte.comitteName}`}
+          subtitle="Select members and assign shares. Total share validated against comitte full share."
+          icon={<UserPlus size={20} />}
+          right={<button onClick={onClose} className="p-2 rounded hover:bg-slate-100"><X size={18} /></button>}
+        />
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {entries.map((e, idx) => (
-            <div key={idx} className="flex gap-2 items-center">
+            <div key={idx} className="flex gap-3 items-start">
               <div className="flex-1">
                 <MemberSearchSelect
                   value={e.memberId ?? null}
@@ -78,28 +84,37 @@ const AttachMembersModal: React.FC<Props> = ({ comitte, onClose, onAttached }) =
                 />
               </div>
 
-              <input
-                type="number"
-                min={1}
-                className="border p-1 w-28"
-                value={e.shareCount}
-                onChange={(ev) => updateRow(idx, { shareCount: Number(ev.target.value || 0) })}
-              />
+              <div className="w-36">
+                <label className="block text-xs text-slate-600">Share</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="border p-2 w-full rounded mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  value={e.shareCount}
+                  onChange={(ev) => updateRow(idx, { shareCount: Number(ev.target.value || 0) })}
+                />
+              </div>
 
-              <button onClick={() => removeRow(idx)} className="text-red-600">Remove</button>
+              <div className="pt-6">
+                <button onClick={() => removeRow(idx)} className="text-red-600">Remove</button>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-3 text-sm">
-          <div>Rows: {entries.length}{membersCountLimit ? ` / ${membersCountLimit}` : ''}</div>
-          <div>Total share: {totalShare}{fullShareLimit ? ` / ${fullShareLimit}` : ''}</div>
-          {shareExceeded && <div className="text-red-600">Total share exceeds comitte full share</div>}
+        <div className="mt-3 text-sm text-slate-700">
+          <div className="flex items-center justify-between">
+            <div>Rows: {entries.length}{membersCountLimit ? ` / ${membersCountLimit}` : ''}</div>
+            <div>Total share: <span className="font-medium">{totalShare}</span>{fullShareLimit ? ` / ${fullShareLimit}` : ''}</div>
+          </div>
+          {shareExceeded && <div className="text-red-600 mt-1">Total share exceeds comitte full share</div>}
         </div>
 
-        <div className="mt-4 flex gap-2">
-          <button onClick={addRow} className="px-3 py-1 border rounded">Add row</button>
-          <button onClick={submit} disabled={anyMissingMember || shareExceeded} className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50">Attach</button>
+        <div className="mt-4 flex gap-2 justify-end">
+          <button onClick={addRow} className="px-3 py-1 border rounded flex items-center gap-2"><UserPlus size={16}/> Add</button>
+          <button onClick={submit} disabled={anyMissingMember || shareExceeded} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center gap-2">
+            <Check size={16} /> Attach
+          </button>
           <button onClick={onClose} className="px-3 py-1 border rounded">Cancel</button>
         </div>
       </div>
